@@ -1,8 +1,6 @@
 # DeepMetaPSICOV 1.0
 ### Deep residual neural networks for protein contact prediction
 
-### NB This repo is still under development and is not yet ready for production use. We estimate that it will be ready in a few weeks once all testing is complete.
-
 Shaun M. Kandathil, Joe G. Greener and David T. Jones
 
 University College London
