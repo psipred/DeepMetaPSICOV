@@ -26,9 +26,9 @@ On some distributions, the C++ compiler is a separate add-on package and may not
 ### Installing PyTorch using conda
 Use `conda install -c pytorch pytorch=0.3.1`
 
-### GPU support
-If you are installing PyTorch using `conda`, `conda` should automatically detect a usable GPU and install an appropriate version with GPU support.
-NB a GPU is not necessary for predicting contacts, but for faster runtimes we recommend using one.
+[comment]: # (### GPU support)
+[comment]: # (If you are installing PyTorch using `conda`, `conda` should automatically detect a usable GPU and install an appropriate version with GPU support.)
+[comment]: # (NB a GPU is not necessary for predicting contacts, but for faster runtimes we recommend using one.)
 
 Setup and testing:
 ------------------
