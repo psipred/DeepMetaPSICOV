@@ -1,20 +1,40 @@
 #!/bin/bash
-maindir=$(dirname $0)
 
 ## Helper script to run DeepMetaPSICOV, v1.0
 ## Shaun Kandathil, 2018
 
+maindir=$(dirname $0)
+
+######################################################
 # User variables
 
 # python executable with required modules
-python=/home/camp/kandats/working/DMP/miniconda2/bin/python
+python=$HOME/working/DMP/miniconda2/bin/python
 
-# Location of default HHblits database (e.g. UniClust30)
-hhblits_db=$maindir/data/hhsuite/uniclust30_2017_10/uniclust30_2017_10
+hhsuite_dir=$HOME/working/DMP/hh-suite-patched
+hhbindir=$hhsuite_dir/bin
 
-# Location of HH-suite and binaries
-hhdir=${maindir}/hh-suite-patched
-hhbindir=${maindir}/bin
+# Basenames of HHblits and PSI-BLAST databses (latter can be UniRef90 or NCBI nr)
+hhblits_db=$HOME/working/hhblitsdb/uniclust30_2018_08/uniclust30_2018_08
+psiblast_db=$maindir/data/blast/nr
+
+# default location of all programs used for input feature generation 
+bindir=$maindir/bin
+
+# Legacy BLAST executables
+blastpgp=$bindir/blastpgp
+makemat=$bindir/makemat
+
+# CCMpred and FreeContact executables
+ccmpred=$bindir/ccmpred
+freecontact=$bindir/freecontact
+
+# environment variables needed for legacy BLAST; dirs containing BLAST matrices (e.g. BLOSUM62) and database
+export BLASTMAT=$maindir/data/blast
+export BLASTDB=$maindir/data/blast
+
+# environment variable needed for HH-suite
+export HHLIB=$hhsuite_dir
 
 # number of threads to use in various programs
 psiblast_threads=4
@@ -23,10 +43,18 @@ psicov_threads=6
 ccmpred_threads=6
 freecontact_threads=8
 
+# timeouts for CCMpred and PSICOV (in seconds)
+ccmpred_timeout=86400
+psicov_timeout=86400
+
 # End of user variables
+#####################################################
+
+# DMP neural net models are stored here
+deepdir=$maindir/deepmetapsicov_consens
 
 help_text="""
-usage: $0 [-h] -i input_fasta [-o contact_file] [-m mtx_file]
+usage: $0 [-h] -i input_fasta [-o contact_file] [-m mtx_file] [--force] [--cleanup]
 
 DeepMetaPSICOV (DMP) v1.0 by Shaun M. Kandathil and David T. Jones
 
@@ -45,13 +73,12 @@ optional arguments:
   -o contact_file, --output-file contact_file
                         Filename for output contacts in CASP format.
                         The default is to create a file with the extension '.deepmetapsicov.con' and the basename of the input file.
+  --cleanup             Clean up intermediate files. If --cleanup is specified, only the PSICOV-formatted alignment and the final contact file will be retained.
+                        The default is to not clean up anything, since some of these files take time to generate!
+                        If this script fails, no cleanup is done, even if --cleanup is specified.
 """
 
 # other options:
-# cleanup
-# use deeper model
-# use hhblits(default) or jack_hhblits for aln gen (only if -a not supplied)
-# do domain parsing
 
 if [ -z "$*" ]; then
     printf "$help_text"
@@ -60,6 +87,7 @@ fi
 
 # parse args
 force=0
+cleanup=0
 while [[ $# -ge 1 ]]
 do
     key="$1"
@@ -88,6 +116,9 @@ do
 	--force)
 	    force=1
 	    ;;
+	--cleanup)
+	    cleanup=1
+	    ;;
         *)
             # process any other argument not specified above.
             # cannot recognise when such an argument also has a value e.g. -f <filename>
@@ -100,8 +131,7 @@ done
 
 ### check args
 # At a minimum, user must must supply fasta sequence.
-# TODO If aln and fasta are supplied, use supplied fasta but check length of seq matches aln. 
-# TODO could check for sequence presence in aln too.
+# If aln and fasta are supplied, use supplied fasta but check length of seq matches aln. TODO could check for sequence presence in aln too.
 
 if [ -z $input_fasta ]; then
     echo "$0: ERROR: you must supply a FASTA file with your target sequence using the -i option." >&2
@@ -139,14 +169,6 @@ set -u
 
 ulimit -s unlimited  # need this for alnstats (and possibly others)
 
-bindir=${maindir}/bin
-
-deepdir=$maindir/deepmetapsicov_consens
-
-export BLASTMAT=${maindir}/data/blast
-export BLASTDB=${maindir}/data/blast
-export HHLIB=${hhdir}
-
 ## Run (legacy) PSI-BLAST and makemat if needed
 
 if [ $force == 1 ] || [ ! -s $tempdir/$prefix.mtx ]; then
@@ -162,7 +184,7 @@ if [ $force == 1 ] || [ ! -s $tempdir/$prefix.mtx ]; then
 
     if [ $run_psiblast == 1 ]; then
 	echo "Running PSI-BLAST..."
-	$bindir/blastpgp -a $psiblast_threads -b 0 -v 2000 -j 3 -h 0.001 -e 0.001 -d $maindir/data/blast/nr -i $tempdir/$prefix.fasta -C $tempdir/$prefix.chk > $tempdir/$prefix.blast
+	$blastpgp -a $psiblast_threads -b 0 -v 2000 -j 3 -h 0.001 -e 0.001 -d $psiblast_db -i $tempdir/$prefix.fasta -C $tempdir/$prefix.chk > $tempdir/$prefix.blast
 	if [ $? != 0 ]; then
 	    echo "DMP ERROR 01 (PSI-BLAST failure) - please report error to psipred\@cs.ucl.ac.uk" >&2
 	    exit 1
@@ -172,7 +194,7 @@ if [ $force == 1 ] || [ ! -s $tempdir/$prefix.mtx ]; then
     echo "$prefix.chk" > $tempdir/$prefix.pn
     echo "$prefix.fasta" > $tempdir/$prefix.sn
 
-    $bindir/makemat -P $tempdir/$prefix > /dev/null
+    $makemat -P $tempdir/$prefix > /dev/null
 
     if [ $? != 0 ]; then
 	echo "DMP ERROR 02 (makemat failure) - please report error to psipred\@cs.ucl.ac.uk" >&2
@@ -183,20 +205,33 @@ else
 fi
 
 ## (Optionally) Make HHblits alignment.
-if [ $force == 1] || [ $no_aln == 1 ]; then
+
+if [ $no_aln == 1 ] && [ -s $tempdir/$prefix.aln ]; then
+    if [ $force == 1 ]; then
+	echo "WARNING: found non-empty alignment at $tempdir/$prefix.aln but --force is specified. A new run of HHblits will be used to make a fresh alignment, and this file will be renamed." >&2
+	mv -v $tempdir/$prefix.aln $tempdir/$prefix.aln.old
+    else
+	echo "WARNING: found alignment at $tempdir/$prefix.aln. Will use this alignment, and HHblits will not be run. To force running HHblits, use --force or delete this alignment." >&2
+	no_aln=0
+    fi
+fi
+
+if [ $force == 1 ] || [ $no_aln == 1 ]; then
     echo "Running HHblits..."
     $hhbindir/hhblits -i $tempdir/$prefix.fasta -n 3 -e 0.001 -d $hhblits_db -cpu $hhblits_threads -oa3m $tempdir/$prefix.a3m -diff inf -cov 50 -id 99 > $tempdir/$prefix.hhblog 2>&1
     if [ $? != 0 ]; then
 	echo "DMP ERROR 03 (HHblits failure) - please report error to psipred\@cs.ucl.ac.uk" >&2
+	exit 3
     fi
     
     grep -v '^>' $tempdir/$prefix.a3m | sed 's/[a-z]//g' > $tempdir/$prefix.hhbaln
     if [ $? != 0 ]; then
 	echo "DMP ERROR 04 (shell cmd failure) - please report error to psipred\@cs.ucl.ac.uk" >&2
+	exit 4
     fi
 
-    seqlen = $(head -n 1 $tempdir/$prefix.hhbaln | wc -c)
-    naln_hhblits = $(cat $tempdir/$prefix.hhbaln | wc -l)
+    seqlen=$(head -n 1 $tempdir/$prefix.hhbaln | wc -c)
+    naln_hhblits=$(cat $tempdir/$prefix.hhbaln | wc -l)
 
     if (( naln_hhblits < 10 * seqlen )); then
 	echo "WARNING: HHblits alignment has fewer sequences than recommended." >&2
@@ -262,7 +297,7 @@ if [ $naln -ge 5 ]; then  ## TODO update this block with --force etc
     # PSICOV
     if [ $force == 1 ] || [ ! -e $tempdir/$prefix.psicov ]; then
 	echo "Running PSICOV..."
-	timeout 86400 $bindir/psicov -z $psicov_threads -o -d 0.03 $tempdir/$prefix.aln > $tempdir/$prefix.psicov 2>&1
+	timeout $psicov_timeout $bindir/psicov -z $psicov_threads -o -d 0.03 $tempdir/$prefix.aln > $tempdir/$prefix.psicov 2>&1
 	psicovret=$?
 	if [ $psicovret == 124 ]; then
 	    echo 'PSICOV timed out. This is not a critical error.'
@@ -272,7 +307,7 @@ if [ $naln -ge 5 ]; then  ## TODO update this block with --force etc
 	fi
     else
 	echo "Using existing PSICOV predictions."
-	if [ ! -s $tempdir/$psicov ]; then
+	if [ ! -s $tempdir/$prefix.psicov ]; then
 	    echo "WARNING: PSICOV file is empty; possibly the result of a run that timed out." >&2
 	fi
     fi
@@ -280,7 +315,7 @@ if [ $naln -ge 5 ]; then  ## TODO update this block with --force etc
     # CCMpred
     if [ $force == 1 ] || [ ! -e $tempdir/$prefix.ccmpred ]; then
 	echo "Running CCMpred..."
-	timeout 86400 $bindir/ccmpred -t $ccmpred_threads $tempdir/$prefix.aln $tempdir/$prefix.ccmpred > /dev/null 2>&1
+	timeout $ccmpred_timeout $ccmpred -t $ccmpred_threads $tempdir/$prefix.aln $tempdir/$prefix.ccmpred > /dev/null 2>&1
 	ccmret=$?
 	if [ $ccmret == 124 ]; then
 	    echo 'CCMpred timed out. This is not a critical error.'
@@ -290,23 +325,23 @@ if [ $naln -ge 5 ]; then  ## TODO update this block with --force etc
 	fi
     else
 	echo "Using existing CCMpred predictions."
-	if [ ! -s $tempdir/$ccmpred ]; then
+	if [ ! -s $tempdir/$prefix.ccmpred ]; then
 	    echo "WARNING: CCMpred file is empty; possibly the result of a run that timed out." >&2
 	fi
     fi	
 
     # FreeContact
-    if [ $force == 1 ] || [ ! -e $tempdir/$prefix.freecontact ]; then    
+    if [ $force == 1 ] || [ ! -e $tempdir/$prefix.evfold ]; then    
 	# no timeout on this one as it tends to be quick enough
 	echo "Running FreeContact..."
-	$bindir/freecontact -a $freecontact_threads < $tempdir/$prefix.aln > $tempdir/$prefix.freecontact
+	$freecontact -a $freecontact_threads < $tempdir/$prefix.aln > $tempdir/$prefix.evfold
 	if [ $? != 0 ]; then
 	    echo "DMP ERROR 12 (freecontact failure) - please report error to psipred\@cs.ucl.ac.uk" >&2
 	    exit 12
 	fi
     else
 	echo "Using existing FreeContact predictions."
-	if [ ! -s $tempdir/$freecontact ]; then
+	if [ ! -s $tempdir/$evfold ]; then
 	    echo "WARNING: FreeContact file is empty." >&2
 	fi
     fi
@@ -315,7 +350,7 @@ else
     echo 'WARNING: alignment has too few sequences; PSICOV, CCMpred and FreeContact will not be run.' >&2
 fi
 
-touch $tempdir/$prefix.psicov $tempdir/$prefix.freecontact $tempdir/$prefix.ccmpred
+touch $tempdir/$prefix.psicov $tempdir/$prefix.evfold $tempdir/$prefix.ccmpred
 if [ $? != 0 ]; then
     echo "DMP ERROR 13 (touch failure) - please report error to psipred\@cs.ucl.ac.uk" >&2
     exit 13
@@ -328,7 +363,7 @@ if [ $force == 1 ] || [ ! -s $tempdir/$prefix.deepmetapsicov.map ] || [ ! -s $te
 	$tempdir/$prefix.colstats \
 	$tempdir/$prefix.pairstats \
 	$tempdir/$prefix.psicov \
-	$tempdir/$prefix.freecontact \
+	$tempdir/$prefix.evfold \
 	$tempdir/$prefix.ccmpred \
 	$tempdir/$prefix.ss2 \
 	$tempdir/$prefix.solv \
@@ -365,7 +400,12 @@ if [ $? != 0 ]; then
 fi
 
 ### Optional cleanup
+if [ $cleanup == 1 ]; then
+    echo "Cleaning up..."
+    for ext in aux blast mtx ss ss2 solv colstats pairstats ccmpred evfold psicov mn pn sn hhblog hhr chk a3m deepmetapsicov.21c deepmetapsicov.map deepmetapsicov.fix
+    do
+	rm $tempdir/${prefix}.${ext}
+    done
+fi
 
 echo 'Done.'
-
-
