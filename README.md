@@ -17,7 +17,7 @@ Requirements:
   - HH-suite v3.0+ and a recent UniClust30 database (for making alignments; skip if you will only use pre-made alignments)
   - CCMpred v0.1.0
   - FreeContact 1.0.21
-  - Legacy PSI-BLAST 2.2.26 (executable `blastpgp`) and a suitable non-redundant database, e.g. Uniref90, formatted using `formatdb` (needed to generate PSIPRED and SOLVPRED inputs)
+  - Legacy BLAST 2.2.26 (executables `blastpgp` and `makemat`) and a suitable non-redundant database, e.g. Uniref90, formatted using `formatdb` (needed to generate PSIPRED and SOLVPRED inputs)
 
 All other required programs written by our group are now bundled in this repo and do not need to be installed separately.
 
