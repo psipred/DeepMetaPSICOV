@@ -27,11 +27,11 @@ class ResNet(nn.Module):
 
         for fsize,dilv in [(5,1), (5,2), (5,1), (5,4), (5,1), (5,8), (5,1), (5,16), (5,1), (5,32), (5,1), (5,64), (5,1), (5,1), (5,1), (5,1), (5,1), (5,1)]:
              if fsize > 0:
-                layer = nn.Conv2d(in_channels=width, out_channels=width, kernel_size=5, dilation=dilv, padding=dilv*(fsize-1)/2)
+                layer = nn.Conv2d(in_channels=width, out_channels=width, kernel_size=5, dilation=dilv, padding=int(dilv*(fsize-1)/2))
                 nn.init.xavier_uniform(layer.weight, gain=sqrt(2.0))
                 self.resblocks.append(layer)
                 self.resblocks.append(nn.InstanceNorm2d(width, affine=True))
-                layer = nn.Conv2d(in_channels=width, out_channels=width, kernel_size=5, dilation=dilv, padding=dilv*(fsize-1)/2)
+                layer = nn.Conv2d(in_channels=width, out_channels=width, kernel_size=5, dilation=dilv, padding=int(dilv*(fsize-1)/2))
                 nn.init.xavier_uniform(layer.weight, gain=sqrt(2.0))
                 self.resblocks.append(layer)
                 self.resblocks.append(nn.InstanceNorm2d(width, affine=True))
@@ -45,7 +45,7 @@ class ResNet(nn.Module):
         out = self.firstnorm(out)
         out = F.dropout(out, p=0.2)
         out = F.dropout2d(out, p=0.2)
-        for i in range(len(self.resblocks)/4):
+        for i in range(int(len(self.resblocks)/4)):
             residual = out
             out = self.resblocks[i*4](out)
             out = F.relu(self.resblocks[i*4+1](out))
