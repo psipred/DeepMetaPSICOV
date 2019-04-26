@@ -7,6 +7,10 @@ trap 'echo "User interrupt; exiting."; exit 0' INT KILL
 
 maindir=$(dirname $0) # do not change
 
+# default location of most programs used for input feature generation 
+# programs compiled by src/Makefile are stored here.
+bindir=$maindir/bin
+
 ######################################################
 # User variables (change these as needed)
 
@@ -53,9 +57,6 @@ psicov_timeout=86400
 # DMP neural net models are stored here
 deepdir=$maindir/deepmetapsicov_consens
 
-# default location of most programs used for input feature generation 
-# programs compiled by src/Makefile are stored here.
-bindir=$maindir/bin
 
 help_text="""
 usage: $0 [-h] -i input_fasta [-a alignment_file] [-o contact_file] [-m mtx_file] [--force] [--cleanup]
