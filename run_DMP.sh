@@ -24,9 +24,6 @@ export HHLIB=$hhsuite_dir
 hhblits_db=$HOME/working/hhblitsdb/uniclust30_2018_08/uniclust30_2018_08
 psiblast_db=$maindir/data/blast/nr
 
-# default location of all programs used for input feature generation 
-bindir=$maindir/bin
-
 # Legacy BLAST executables
 blastpgp=$bindir/blastpgp
 makemat=$bindir/makemat
@@ -55,6 +52,10 @@ psicov_timeout=86400
 
 # DMP neural net models are stored here
 deepdir=$maindir/deepmetapsicov_consens
+
+# default location of most programs used for input feature generation 
+# programs compiled by src/Makefile are stored here.
+bindir=$maindir/bin
 
 help_text="""
 usage: $0 [-h] -i input_fasta [-a alignment_file] [-o contact_file] [-m mtx_file] [--force] [--cleanup]
