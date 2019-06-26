@@ -61,7 +61,7 @@ deepdir=$maindir/deepmetapsicov_consens
 help_text="""
 usage: $0 [-h] -i input_fasta [-a alignment_file] [-o contact_file] [-m mtx_file] [--force] [--cleanup]
 
-DeepMetaPSICOV (DMP) v1.0 by Shaun M. Kandathil, Joe G. Greener, and David T. Jones
+DeepMetaPSICOV (DMP) v1.1.0 by Shaun M. Kandathil, Joe G. Greener, and David T. Jones
 
 required arguments:
   -i input_fasta, --input-fasta input_fasta
