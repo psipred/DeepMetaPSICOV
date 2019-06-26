@@ -441,7 +441,7 @@ fi
 echo 'Predicting contacts...'
 $python $deepdir/pytorch_metacov_consenspred_030model.py \
     $tempdir/$prefix.deepmetapsicov.21c \
-    $tempdir/$prefix.deepmetapsicov.map > $output_file 2>&1
+    $tempdir/$prefix.deepmetapsicov.map > $output_file
 if [ $? != 0 ]; then
     echo "DMP ERROR 16 (DMP predictor failure) - please report error to psipred@cs.ucl.ac.uk" >&2
     exit 16

@@ -28,17 +28,17 @@ class ResNet(nn.Module):
         for fsize,dilv in [(5,1), (5,2), (5,1), (5,4), (5,1), (5,8), (5,1), (5,16), (5,1), (5,32), (5,1), (5,64), (5,1), (5,1), (5,1), (5,1), (5,1), (5,1)]:
              if fsize > 0:
                 layer = nn.Conv2d(in_channels=width, out_channels=width, kernel_size=5, dilation=dilv, padding=int(dilv*(fsize-1)/2))
-                nn.init.xavier_uniform(layer.weight, gain=sqrt(2.0))
+                nn.init.xavier_uniform_(layer.weight, gain=sqrt(2.0))
                 self.resblocks.append(layer)
                 self.resblocks.append(nn.InstanceNorm2d(width, affine=True))
                 layer = nn.Conv2d(in_channels=width, out_channels=width, kernel_size=5, dilation=dilv, padding=int(dilv*(fsize-1)/2))
-                nn.init.xavier_uniform(layer.weight, gain=sqrt(2.0))
+                nn.init.xavier_uniform_(layer.weight, gain=sqrt(2.0))
                 self.resblocks.append(layer)
                 self.resblocks.append(nn.InstanceNorm2d(width, affine=True))
 
         self.lastnorm = nn.InstanceNorm2d(1, affine=True)
         self.outlayer = nn.Conv2d(in_channels=width, out_channels=1, kernel_size=1)
-        nn.init.xavier_uniform(self.outlayer.weight)
+        nn.init.xavier_uniform_(self.outlayer.weight)
 
     def forward(self, x):
         out = self.redim(x)
