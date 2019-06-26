@@ -1040,13 +1040,7 @@
 32 50 0 8  0.004278028849512339
 33 35 0 8  0.9058847427368164
 33 36 0 8  0.8730335235595703
-33 37 0 8  0.4821227788925171/home/shaunmk/projects/DeepMetaPSICOV/deepmetapsicov_consens/nndef_meta_resnet.py:31: UserWarning: nn.init.xavier_uniform is now deprecated in favor of nn.init.xavier_uniform_.
-  nn.init.xavier_uniform(layer.weight, gain=sqrt(2.0))
-/home/shaunmk/projects/DeepMetaPSICOV/deepmetapsicov_consens/nndef_meta_resnet.py:35: UserWarning: nn.init.xavier_uniform is now deprecated in favor of nn.init.xavier_uniform_.
-  nn.init.xavier_uniform(layer.weight, gain=sqrt(2.0))
-/home/shaunmk/projects/DeepMetaPSICOV/deepmetapsicov_consens/nndef_meta_resnet.py:41: UserWarning: nn.init.xavier_uniform is now deprecated in favor of nn.init.xavier_uniform_.
-  nn.init.xavier_uniform(self.outlayer.weight)
-
+33 37 0 8  0.4821227788925171
 33 38 0 8  0.02186296135187149
 33 39 0 8  0.008993452414870262
 33 40 0 8  0.003296497743576765
