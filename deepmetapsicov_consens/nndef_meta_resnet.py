@@ -43,8 +43,8 @@ class ResNet(nn.Module):
     def forward(self, x):
         out = self.redim(x)
         out = self.firstnorm(out)
-        out = F.dropout(out, p=0.2)
-        out = F.dropout2d(out, p=0.2)
+#        out = F.dropout(out, p=0.2)
+#        out = F.dropout2d(out, p=0.2)
         for i in range(int(len(self.resblocks)/4)):
             residual = out
             out = self.resblocks[i*4](out)

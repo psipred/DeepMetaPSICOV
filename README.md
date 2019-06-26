@@ -1,17 +1,24 @@
-# DeepMetaPSICOV 1.0.0
+# DeepMetaPSICOV 1.1.0
 ### Deep residual neural networks for protein contact prediction
 
 Shaun M. Kandathil, Joe G. Greener and David T. Jones
 
 University College London
 
+Changes in version 1.1.0
+------------------------
+
+- Changes for compatibility with PyTorch 0.4.0 and above but reading in trained model saved with 0.3.0. The 'reference' version using PyTorch 0.3 is still provided.
+- Minor bugfixes in test script.
+- Updated documentation.
+
 Requirements:
 -------------
 - Bash shell
 - C and C++ compilers (tested with GCC 4.4.2, 4.8.5, and 5.4.0)
-- Python 2 or 3 (preferably miniconda/anaconda, as this makes the PyTorch install much easier)
+- Python 2 or 3 (preferably miniconda/anaconda, as this makes the PyTorch install much easier; tested on miniconda Python3)
 - The following Python modules:
-  - PyTorch 0.3.1 
+  - PyTorch >= 0.4.0 (tested on 1.1.0)
   
 - Third-party programs:
   - HH-suite v3.0+ and a recent UniClust30 database (for making alignments; skip if you will only use pre-made alignments)
@@ -23,12 +30,8 @@ All other required programs written by our group are now bundled in this repo an
 
 On some distributions, the C++ compiler is a separate add-on package and may not be installed by default. For example, on CentOS you will need to `yum install` packages `gcc` AND `gcc-c++`.
 
-### Installing PyTorch using conda
-Use `conda install -c pytorch pytorch=0.3.1`
-
-[comment]: # (### GPU support)
-[comment]: # (If you are installing PyTorch using `conda`, `conda` should automatically detect a usable GPU and install an appropriate version with GPU support.)
-[comment]: # (NB a GPU is not necessary for predicting contacts, but for faster runtimes we recommend using one.)
+### Installing PyTorch
+For most `conda` users, `conda install -c pytorch pytorch` should work. Alternatively, visit https://pytorch.org/get-started/locally/
 
 Setup and testing:
 ------------------
@@ -79,9 +82,3 @@ The version of `alnstats` in this repository is not affected by the bug in quest
 
 ### The version of CCMpred you use is ancient!
 We know. Keen users will also have spotted that we use a number of input features in common with MetaPSICOV. We wanted to assess whether we improve over MetaPSICOV, DeepCov etc. using exactly the same training data, where possible. We are currently working on the next version of DMP, which will use the latest version of CCMpred, among other changes.
-
-### The version of PyTorch you use is ancient!
-The development of the DMP v1 began when PyTorch 0.3.0 was current.
-By the end of CASP13, v1.0 was being prepared for release.
-The DMP models were trained on v0.3.0 and although it is possible to read in and run the trained models using PyTorch v0.4-1.0+, we find that there are occasionally significant differences in the contact scores output.
-In order to keep things as close as possible to the version we ran in CASP13, we are recommending that users use PyTorch 0.3.0 or 0.3.1 for DMP v1.0. We intend to upgrade the version of PyTorch used in the next release.

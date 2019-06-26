@@ -15,7 +15,7 @@ bindir=$maindir/bin
 # User variables (change these as needed)
 
 # python executable with required modules
-python=$HOME/working/DMP/miniconda2/bin/python
+python=$HOME/miniconda3/bin/python
 
 # path to HH-suite and HHblits executable
 hhsuite_dir=$HOME/working/DMP/hh-suite-patched
@@ -439,7 +439,7 @@ fi
 
 # Actually run the predictor. This is run regardless of --force.
 echo 'Predicting contacts...'
-$python $deepdir/pytorch_metacov_pred.py \
+$python $deepdir/pytorch_metacov_consenspred_030model.py \
     $tempdir/$prefix.deepmetapsicov.21c \
     $tempdir/$prefix.deepmetapsicov.map > $output_file 2>&1
 if [ $? != 0 ]; then
