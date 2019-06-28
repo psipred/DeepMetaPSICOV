@@ -377,7 +377,6 @@ if (interactive()) {
 }
 
 con <- read.table(con_fname)
-pdf(file=pdf_fname, height=10, width=10)
+png(file=pdf_fname, width = 800, height = 800)
 image_contact_mtx(pfrmat_to_mtx(con), zlim = c(0,1))
 dev.off()
-
