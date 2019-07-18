@@ -1,2 +1,2 @@
 #!/bin/sh
-egrep -v '^>' $1 | sed 's/[a-z]//g'
+egrep -v '^>' $1 | sed 's/[a-z]//g' > $2
