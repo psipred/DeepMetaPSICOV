@@ -70,7 +70,7 @@ At a minimum, you must provide the path to a FASTA-formatted target sequence in 
 
 Citing:
 -------
-If you find DeepMetaPSICOV useful, please cite our paper at bioRxiv: https://www.biorxiv.org/content/10.1101/586800v2
+If you find DeepMetaPSICOV useful, please cite our paper in _Proteins_: https://onlinelibrary.wiley.com/doi/full/10.1002/prot.25779
 
 FAQs:
 -----
