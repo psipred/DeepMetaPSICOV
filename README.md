@@ -68,6 +68,15 @@ At a minimum, you must provide the path to a FASTA-formatted target sequence in 
 ### Option 4: From sequence, pre-made alignment, and PSSM in legacy BLAST makemat format (does not require BLAST or HHblits):
 `/path/to/run_DMP.sh -i input.fasta -a input.aln -m input.mtx`
 
+Output:
+------
+The primary output from the script is a file with the extension `.con` that has the contact predictions in CASP format, without headers and footers.
+
+A number of intermediate files are also generated during a run, corresponding to the outputs from the various input feature generation programs. These are then composed into a few more files so that the data are in the correct format for the ResNet to use. These latter files have the extensions `.map`, `.21c` and `.fix`. 
+
+By default, all of these intermediate files are retained after the run has completed; this behaviour can be changed by specifying `--cleanup` to `run_DMP.sh`. When `--cleanup` is specified, only the PSICOV-formatted MSA (extension `.aln`), the PSI-BLAST PSSM (extension `.mtx`) and the `.con` file are retained. The input `.fasta` sequence file is never deleted.
+
+
 Citing:
 -------
 If you find DeepMetaPSICOV useful, please cite our paper in _Proteins_: https://onlinelibrary.wiley.com/doi/full/10.1002/prot.25779

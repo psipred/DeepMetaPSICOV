@@ -83,7 +83,7 @@ optional arguments:
                         The default is to create a file with the extension '.deepmetapsicov.con' and the basename of the input file.
   --cleanup             Clean up intermediate files. If --cleanup is specified, only the PSI-BLAST PSSM, PSICOV-formatted alignment,
                         and the final contact file will be retained.
-                        The default is to not to perform any clean-up, since some of the intermediate files take time to generate!
+                        The default is to not perform any clean-up, since some of the intermediate files take time to generate!
                         If any step in the DMP pipeline fails, no cleanup is done, even if --cleanup is specified.
 """
 
@@ -453,7 +453,7 @@ fi
 ### Optional cleanup
 if [ $cleanup == 1 ]; then
     echo "Cleaning up..."
-    # things not cleaned up: aln mtx deepmetapsicov.con
+    # things not cleaned up: fasta aln mtx deepmetapsicov.con
     for ext in aux blast ss ss2 solv colstats pairstats ccmpred evfold psicov mn pn sn hhblog hhr chk a3m deepmetapsicov.21c deepmetapsicov.map deepmetapsicov.fix
     do
 	rm -f $tempdir/${prefix}.${ext}
