@@ -24,7 +24,7 @@ Requirements:
   - HH-suite v3.0+ and a recent UniClust30 database (for making alignments; skip if you will only use pre-made alignments)
   - CCMpred v0.1.0 (Need this exact version; available [here](http://bioinfadmin.cs.ucl.ac.uk/downloads/ccmpred-0.1.0/CCMpred-0.1.0.tar.gz))
   - FreeContact 1.0.21 (available [here](https://rostlab.org/owiki/index.php/FreeContact))
-  - Legacy BLAST 2.2.26 (executables `blastpgp` and `makemat`) and a suitable non-redundant database, e.g. Uniref90, formatted using `formatdb` (needed to generate PSIPRED and SOLVPRED inputs)
+  - Legacy BLAST 2.2.26 (executables `blastpgp` and `makemat`) and a suitable non-redundant database, e.g. Uniref90, formatted using `formatdb` (needed to generate PSIPRED and SOLVPRED inputs). Legacy BLAST is available [here](https://ftp.ncbi.nlm.nih.gov/blast/executables/legacy.NOTSUPPORTED/2.2.26/).
 
 All other required programs written by our group are now bundled in this repo and do not need to be installed separately.
 
@@ -90,4 +90,4 @@ Yes. DMP was trained on data output by specific versions of the feature generati
 The version of `alnstats` in this repository is not affected by the bug in question. Since we verified that the training of DMP did not suffer from the bug, we are releasing the bug-free version for inference. If for any reason you'd like the buggy version of `alnstats`, do get in touch.
 
 ### The version of CCMpred you use is ancient!
-We know. Keen users will also have spotted that we use a number of input features in common with MetaPSICOV. We wanted to assess whether we improve over MetaPSICOV, DeepCov etc. using exactly the same training data, where possible. We are currently working on the next version of DMP, which will use the latest version of CCMpred, among other changes.
+We know. Keen users will also have spotted that we use a number of input features in common with MetaPSICOV. We wanted to assess whether we improve over MetaPSICOV, DeepCov etc. using exactly the same training data, where possible.
